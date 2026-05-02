@@ -1,10 +1,9 @@
-package com.algaworks.algashop.billing.presentation;
+package com.algaworks.algashop.billing.presentation.creditcard;
 
 import com.algaworks.algashop.billing.application.creditcard.management.CreditCardManagementService;
 import com.algaworks.algashop.billing.application.creditcard.management.TokenizedCreditCardInput;
 import com.algaworks.algashop.billing.application.creditcard.query.CreditCardOutput;
 import com.algaworks.algashop.billing.application.creditcard.query.CreditCardQueryService;
-import com.algaworks.algashop.billing.domain.model.creditcard.CreditCard;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

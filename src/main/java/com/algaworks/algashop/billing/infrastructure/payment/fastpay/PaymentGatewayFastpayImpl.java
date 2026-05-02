@@ -8,30 +8,61 @@ import com.algaworks.algashop.billing.domain.model.invoice.Payer;
 import com.algaworks.algashop.billing.domain.model.invoice.payment.Payment;
 import com.algaworks.algashop.billing.domain.model.invoice.payment.PaymentGatewayService;
 import com.algaworks.algashop.billing.domain.model.invoice.payment.PaymentRequest;
+import com.algaworks.algashop.billing.infrastructure.payment.AlgaShopPaymentPropreties;
+import com.algaworks.algashop.billing.presentation.BadGatewayException;
+import com.algaworks.algashop.billing.presentation.GatewayTimeoutException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.UUID;
 
 @Service
 @ConditionalOnProperty(name = "algashop.integrations.payment.provider", havingValue = "FASTPAY")
 @RequiredArgsConstructor
+@Slf4j
 public class PaymentGatewayFastpayImpl implements PaymentGatewayService {
 
     private final FastPaymentAPIClient fastpayPaymentAPIClient;
     private final CreditCardRepository creditCardRepository;
 
+    private final AlgaShopPaymentPropreties properties;
+
     @Override
     public Payment capture(PaymentRequest request) {
         FastpayPaymentInput input = convertToInput(request);
-        FastpayPaymentModel paymentModel = fastpayPaymentAPIClient.capture(input);
+        FastpayPaymentModel paymentModel;
+        try {
+            log.info("Capturing payment with Fastpay for invoice {} and amount {}", request.getInvoiceId(), request.getAmount());
+              paymentModel = fastpayPaymentAPIClient.capture(input);
+        } catch (ResourceAccessException e) {
+            log.error("Error capturing payment with Fastpay for invoice {}: {}", request.getInvoiceId(), e.getMessage());
+            throw new GatewayTimeoutException("Fastpay API Timeout", e);
+        } catch (HttpClientErrorException e ) {
+            log.info("Client error when capturing payment with Fastpay for invoice {}: {}", request.getInvoiceId(), e.getMessage());
+            throw new BadGatewayException("Bad response from Fastpay API: " + e.getResponseBodyAsString(), e);
+        }
+        
         return convertToPayment(paymentModel);
     }
 
     @Override
     public Payment findByCode(String gateWayCode) {
-        return this.convertToPayment(fastpayPaymentAPIClient.findById(gateWayCode));
+        FastpayPaymentModel paymentModel;
+        try {
+            paymentModel = fastpayPaymentAPIClient.findById(gateWayCode);
+        } catch (ResourceAccessException e) {
+            log.error("Error retrieving payment with Fastpay for gateway code {}: {}", gateWayCode, e.getMessage());
+            throw new GatewayTimeoutException("Fastpay API Timeout", e);
+        } catch (HttpClientErrorException e ) {
+            log.info("Client error when retrieving payment with Fastpay for gateway code {}: {}", gateWayCode, e.getMessage());
+            throw new BadGatewayException("Bad response from Fastpay API: " + e.getResponseBodyAsString(), e);
+        }
+
+        return this.convertToPayment(paymentModel);
     }
 
     private Payment convertToPayment(FastpayPaymentModel paymentModel) {
@@ -72,7 +103,7 @@ public class PaymentGatewayFastpayImpl implements PaymentGatewayService {
                 .addressLine1(address.getStreet() + ", " + address.getNumber())
                 .addressLine2(address.getComplement())
                 .zipCode(address.getZipCode())
-                .replyToUrl("http://example.com/webhook/fastpay");
+                .replyToUrl(properties.getFastpay().getWebhookUrl());
 
         switch (request.getMethod()) {
             case CREDIT_CARD -> {

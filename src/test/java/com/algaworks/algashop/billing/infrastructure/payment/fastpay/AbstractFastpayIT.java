@@ -2,10 +2,17 @@ package com.algaworks.algashop.billing.infrastructure.payment.fastpay;
 
 import com.algaworks.algashop.billing.domain.model.creditcard.LimitedCreditCard;
 import com.algaworks.algashop.billing.infrastructure.creditcard.fastpay.*;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.TemplateEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
 import java.time.Year;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 @Import(FastpayCreditCardTokenizationAPIClientConfig.class)
@@ -19,6 +26,29 @@ public abstract class AbstractFastpayIT {
 
     protected static final UUID validCustomerId = UUID.randomUUID();
     protected static final String alwaysPaidCardNumber = "4622943127011022";
+
+    protected static WireMockServer wireMockServerFastPay;
+
+    public static void startWireMockServer() {
+        wireMockServerFastPay = new WireMockServer(
+                WireMockConfiguration.options()
+                        .port(8889)
+                        .usingFilesUnderClasspath("src/test/resources/wiremock/fastpay")
+                        .extensions(new ResponseTemplateTransformer(
+                                TemplateEngine.defaultTemplateEngine(),
+                                true,
+                                new ClasspathFileSource("src/test/resources/wiremock/fastpay"),
+                                Collections.emptyList()
+                        ))
+        );
+        wireMockServerFastPay.start();
+    }
+
+    public static void stopWireMockServer() {
+        if (wireMockServerFastPay != null) {
+            wireMockServerFastPay.stop();
+        }
+    }
 
     protected LimitedCreditCard registerCard() {
         FastpayTokenizationInput input = FastpayTokenizationInput.builder()

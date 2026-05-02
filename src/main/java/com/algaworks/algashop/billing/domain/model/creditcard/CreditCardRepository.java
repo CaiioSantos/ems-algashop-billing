@@ -2,7 +2,6 @@ package com.algaworks.algashop.billing.domain.model.creditcard;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

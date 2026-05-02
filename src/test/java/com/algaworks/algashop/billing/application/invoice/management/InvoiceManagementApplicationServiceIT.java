@@ -45,11 +45,13 @@ class InvoiceManagementApplicationServiceIT {
     private InvoiceEventListener invoiceEventListener;
 
     @Test
-    public void shouldGenerateInvoiceWithCreditCardAsPayment() {
+    void shouldGenerateInvoiceWithCreditCardAsPayment() {
         CreditCard creditCard = CreditCardTestDataBuilder.aCreditCard().build();
         creditCardRepository.saveAndFlush(creditCard);
 
-        GenerateInvoiceInput input = GenerateInvoiceInputTestDataBuilder.anInput().build();
+        GenerateInvoiceInput input = GenerateInvoiceInputTestDataBuilder.anInput()
+                .customerId(creditCard.getCustomerId())
+                .build();
 
         input.setPaymentSettings(
                 PaymentSettingsInput.builder()
@@ -65,19 +67,17 @@ class InvoiceManagementApplicationServiceIT {
         Assertions.assertThat(invoice.getStatus()).isEqualTo(InvoiceStatus.UNPAID);
         Assertions.assertThat(invoice.getOrderId()).isEqualTo(input.getOrderId());
 
-        Assertions.assertThat(invoice.getVersion()).isEqualTo(0l);
+        Assertions.assertThat(invoice.getVersion()).isEqualTo(0L);
         Assertions.assertThat(invoice.getCreatedAt()).isNotNull();
         Assertions.assertThat(invoice.getCreatedByUserId()).isNotNull();
 
         Mockito.verify(invoicingService).issue(any(), any(), any(), any());
 
-        Mockito.verify(invoiceEventListener).listen(any(InvoiceIssuedEvent.class));
-
+        Mockito.verify(invoiceEventListener).listen(Mockito.any(InvoiceIssuedEvent.class));
     }
 
     @Test
-    public void shouldGenerateInvoiceWithGatewayBalanceAsPayment() {
-        UUID customerId = UUID.randomUUID();
+    void shouldGenerateInvoiceWithGatewayBalanceAsPayment() {
         GenerateInvoiceInput input = GenerateInvoiceInputTestDataBuilder.anInput().build();
 
         input.setPaymentSettings(
@@ -97,7 +97,7 @@ class InvoiceManagementApplicationServiceIT {
     }
 
     @Test
-    public void shouldProcessInvoicePayment() {
+    void shouldProcessInvoicePayment() {
         Invoice invoice = InvoiceTestDataBuilder.anInvoice().build();
         invoice.changePaymentSettings(PaymentMethod.GATEWAY_BALANCE, null);
         invoiceRepository.saveAndFlush(invoice);
@@ -123,7 +123,7 @@ class InvoiceManagementApplicationServiceIT {
     }
 
     @Test
-    public void shouldProcessInvoicePaymentAndCancelInvoice() {
+    void shouldProcessInvoicePaymentAndCancelInvoice() {
         Invoice invoice = InvoiceTestDataBuilder.anInvoice().build();
         invoice.changePaymentSettings(PaymentMethod.GATEWAY_BALANCE, null);
         invoiceRepository.saveAndFlush(invoice);

@@ -44,6 +44,7 @@ dependencies {
 	implementation 'org.modelmapper:modelmapper:3.2.4'
 	implementation 'org.apache.commons:commons-lang3:3.18.0'
 	testImplementation 'org.assertj:assertj-core:3.27.2'
+	testImplementation 'org.wiremock:wiremock-standalone:3.13.1'
 
 	runtimeOnly 'org.postgresql:postgresql'
 	implementation 'org.flywaydb:flyway-core'

@@ -1,4 +1,4 @@
-package com.algaworks.algashop.billing.presentation;
+package com.algaworks.algashop.billing.presentation.invoice;
 
 import com.algaworks.algashop.billing.application.invoice.management.GenerateInvoiceInput;
 import com.algaworks.algashop.billing.application.invoice.management.InvoiceManagementApplicationService;
