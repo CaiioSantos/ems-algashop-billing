@@ -2,6 +2,7 @@ package com.algaworks.algashop.billing.infrastructure.payment.fastpay;
 
 import com.algaworks.algashop.billing.domain.model.creditcard.LimitedCreditCard;
 import com.algaworks.algashop.billing.infrastructure.creditcard.fastpay.*;
+import com.algaworks.algashop.billing.utils.TestContainerPostgresSqlConfig;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.ClasspathFileSource;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -11,11 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 
 import java.time.Year;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-@Import(FastpayCreditCardTokenizationAPIClientConfig.class)
+@Import({FastpayCreditCardTokenizationAPIClientConfig.class, TestContainerPostgresSqlConfig.class})
 public abstract class AbstractFastpayIT {
 
     @Autowired
@@ -32,7 +32,7 @@ public abstract class AbstractFastpayIT {
     public static void startWireMockServer() {
         wireMockServerFastPay = new WireMockServer(
                 WireMockConfiguration.options()
-                        .port(8889)
+                        .port(8888)
                         .usingFilesUnderClasspath("src/test/resources/wiremock/fastpay")
                         .extensions(new ResponseTemplateTransformer(
                                 TemplateEngine.defaultTemplateEngine(),

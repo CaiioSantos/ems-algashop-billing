@@ -7,10 +7,6 @@ spring:
     url: jdbc:postgresql://localhost:5432/billing_test
     username: postgres
     password: postgres
-    hikari:
-      minimum-idle: 1
-      maximum-pool-size: 10
-      connection-timeout: 3000
   jpa:
     hibernate:
       ddl-auto: none
