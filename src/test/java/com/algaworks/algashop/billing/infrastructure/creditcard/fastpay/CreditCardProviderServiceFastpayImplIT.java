@@ -14,6 +14,9 @@ class CreditCardProviderServiceFastpayImplIT extends AbstractFastpayIT {
     @BeforeAll
     public static void beforeAll() {
         startWireMockServer();
+        System.setProperty("algashop.integrations.payment.fastpay.hostname",
+                "http://localhost:" + wireMockServerFastPay.port());
+
     }
 
     @AfterAll

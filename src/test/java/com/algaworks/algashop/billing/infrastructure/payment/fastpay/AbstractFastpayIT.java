@@ -32,7 +32,7 @@ public abstract class AbstractFastpayIT {
     public static void startWireMockServer() {
         wireMockServerFastPay = new WireMockServer(
                 WireMockConfiguration.options()
-                        .port(8888)
+                        .port(0)
                         .usingFilesUnderClasspath("src/test/resources/wiremock/fastpay")
                         .extensions(new ResponseTemplateTransformer(
                                 TemplateEngine.defaultTemplateEngine(),
