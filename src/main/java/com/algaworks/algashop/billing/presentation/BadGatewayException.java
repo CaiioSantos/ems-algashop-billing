@@ -7,4 +7,26 @@ public class BadGatewayException extends RuntimeException {
     public BadGatewayException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public static class ServerErrorException extends BadGatewayException {
+        public ServerErrorException() {
+        }
+
+        public ServerErrorException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+    
+    public static class ClientErrorException extends BadGatewayException {
+        public ClientErrorException() {
+        }
+
+        public ClientErrorException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public ClientErrorException(String message) {
+            super(message, null);
+        }
+    }
 }
