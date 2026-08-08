@@ -15,6 +15,7 @@ import java.time.Duration;
 @Configuration
 public class SpringCircuitBreakerConfig {
 
+    public static final String FASTPAY_PAYMENT_CB = "fastpayPaymentCB";
 
     @Bean
     public Customizer<FrameworkRetryCircuitBreakerFactory> defaultCustomizer() {
@@ -31,7 +32,7 @@ public class SpringCircuitBreakerConfig {
                     .retryPolicy(retryPolicy)
                     .openTimeout(Duration.ofSeconds(10))
                     .resetTimeout(Duration.ofSeconds(25))
-                    .build(), "fastpayPaymentCB");
+                    .build(), FASTPAY_PAYMENT_CB);
         };
     }
 }
